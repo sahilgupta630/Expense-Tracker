@@ -28,10 +28,11 @@ This is the **easiest and fastest** option! No installation needed.
 - Click "Database Access" in left sidebar
 - Click "Add New Database User"
 - Authentication Method: Password
-- Username: `expenseuser`
-- Password: `expense123` (or create your own - remember it!)
+- Username: Choose a username (e.g., `expenseuser`)
+- Password: Create a strong password (remember it!)
 - Database User Privileges: "Atlas admin"
 - Click "Add User"
+
 
 #### **4. Whitelist Your IP Address**
 - Click "Network Access" in left sidebar
@@ -61,17 +62,18 @@ MONGODB_URI=mongodb://localhost:27017/expense-tracker
 
 **AFTER:**
 ```env
-MONGODB_URI=mongodb+srv://expenseuser:expense123@cluster0.xxxxx.mongodb.net/expense-tracker?retryWrites=true&w=majority
+MONGODB_URI=mongodb+srv://YOUR_USERNAME:YOUR_PASSWORD@cluster0.xxxxx.mongodb.net/expense-tracker?retryWrites=true&w=majority
 ```
 
 **Important:** 
-- Replace `<password>` with your actual password (e.g., `expense123`)
+- Replace `YOUR_USERNAME` with your database username
+- Replace `YOUR_PASSWORD` with your actual password
 - Replace `xxxxx` with your actual cluster ID from the connection string
 - Add `/expense-tracker` before the `?` to specify the database name
 
 **Example:**
 ```env
-MONGODB_URI=mongodb+srv://expenseuser:expense123@cluster0.abc123.mongodb.net/expense-tracker?retryWrites=true&w=majority
+MONGODB_URI=mongodb+srv://myuser:mypassword@cluster0.abc123.mongodb.net/expense-tracker?retryWrites=true&w=majority
 ```
 
 #### **7. Start Your Project**
