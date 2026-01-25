@@ -17,8 +17,14 @@ export const GlobalProvider = ({ children }) => {
         const userData = localStorage.getItem('user');
 
         if (token && userData) {
-            setUser(JSON.parse(userData));
-            setIsAuthenticated(true);
+            try {
+                setUser(JSON.parse(userData));
+                setIsAuthenticated(true);
+            } catch (error) {
+                console.error('Error parsing user data:', error);
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+            }
         }
     }, []);
 
