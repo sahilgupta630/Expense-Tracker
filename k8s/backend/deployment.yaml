@@ -26,7 +26,7 @@ spec:
           effect: "NoSchedule"
       containers:
         - name: backend
-          image: ghcr.io/sahilgupta630/expense-tracker-backend:latest
+          image: ghcr.io/sahilgupta630/expense-tracker-backend:84e9d0c
           imagePullPolicy: Always
           ports:
             - containerPort: 5000

@@ -26,7 +26,7 @@ spec:
           effect: "NoSchedule"
       containers:
         - name: frontend
-          image: ghcr.io/sahilgupta630/expense-tracker-frontend:latest
+          image: ghcr.io/sahilgupta630/expense-tracker-frontend:84e9d0c
           imagePullPolicy: Always
           ports:
             - containerPort: 80
