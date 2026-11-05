@@ -1,0 +1,43 @@
+# Local run of the full stack: MongoDB + backend + frontend.
+#   1. cp backend/.env.example backend/.env   (fill in GEMINI_API_KEY, JWT_SECRET, SESSION_SECRET)
+#   2. docker compose up --build
+#   3. open http://localhost
+services:
+  mongodb:
+    image: mongo:7.0
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: ./backend
+    env_file:
+      - ./backend/.env
+    environment:
+      # Override the values in backend/.env so they work inside Docker
+      mongoDBURL: mongodb://mongodb:27017/expense-tracker
+      FRONTEND_URL: http://localhost
+      BACKEND_URL: http://localhost:5000
+    ports:
+      - "5000:5000"
+    restart: unless-stopped
+    depends_on:
+      - mongodb
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        # Baked into the React build: the browser calls the backend on port 5000
+        VITE_BACKEND_URL: http://localhost:5000/api
+    ports:
+      - "80:80"
+    restart: unless-stopped
+    depends_on:
+      - backend
+
+volumes:
+  mongodb_data:
