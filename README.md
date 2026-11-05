@@ -294,6 +294,8 @@ flowchart LR
 
 After that, every push to `main` is deployed automatically. See **[k8s/README.md](k8s/README.md)** for the cluster layout, secret rotation, rollbacks and troubleshooting.
 
+> **Small servers (under 3 GB RAM, e.g. `t3.micro`):** `deploy.sh` detects this and switches to a lightweight mode. It adds 4 GB of swap, skips ArgoCD (which alone needs about 1 GB), and installs a systemd timer that pulls `main` every 2 minutes and applies any new manifests. Auto-deploy keeps working the same way. Check it with `journalctl -u expense-tracker-update`.
+
 ## 📁 Project Structure
 
 ```
