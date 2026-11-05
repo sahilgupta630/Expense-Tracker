@@ -1,0 +1,19 @@
+import mongoose from 'mongoose';
+import { config } from 'dotenv';
+config();
+
+const mongoDBURL = process.env.mongoDBURL;
+
+const connectDB = async()=>{
+    try {
+        await mongoose
+        .connect(mongoDBURL)
+        .then(() => console.log("connected to database of MongoDB"))
+        
+    } catch (error) {
+        console.log({message :error.message})
+        throw error; // let server.js stop instead of running without a database
+    }
+}
+
+    export {connectDB};
