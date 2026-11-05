@@ -6,6 +6,12 @@ on:
   pull_request:
     branches: [main]
 
+# A newer push to the same branch cancels the older run, so two runs never
+# race to push manifest updates.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 env:
   REGISTRY: ghcr.io
   IMAGE_OWNER: sahilgupta630
@@ -134,4 +140,5 @@ jobs:
           git add k8s/backend/deployment.yaml k8s/frontend/deployment.yaml
           git diff --staged --quiet && echo "No changes to commit" && exit 0
           git commit -m "ci: update image tags to ${{ needs.build-and-push.outputs.image_tag }} [skip ci]"
+          git pull --rebase origin main
           git push origin main
