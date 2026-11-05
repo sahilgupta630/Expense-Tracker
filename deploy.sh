@@ -20,6 +20,7 @@ MEM_MB=$(awk '/MemTotal/ {print int($2/1024)}' /proc/meminfo)
 if [ "$MEM_MB" -lt 3000 ]; then LITE=1; else LITE=0; fi
 
 step() { echo; echo "==> $*"; }
+trap 'echo "ERROR: deploy.sh failed at line $LINENO: $BASH_COMMAND" >&2' ERR
 
 # ---------- 1. Collect settings ----------
 read -rp "Your domain (e.g. sahil-expense-tracker.duckdns.org): " DOMAIN
@@ -37,12 +38,12 @@ fi
 
 # ---------- 2. Base packages ----------
 step "Installing base packages"
-sudo apt-get update -y
-sudo apt-get install -y git curl openssl
+sudo apt-get update -y </dev/null
+sudo apt-get install -y git curl openssl </dev/null
 
 # ---------- 3. Get the code ----------
 step "Fetching $REPO_URL"
-if [ -d "$REPO_DIR/.git" ]; then git -C "$REPO_DIR" pull --ff-only; else git clone "$REPO_URL" "$REPO_DIR"; fi
+if [ -d "$REPO_DIR/.git" ]; then git -C "$REPO_DIR" pull --ff-only </dev/null; else git clone "$REPO_URL" "$REPO_DIR" </dev/null; fi
 cd "$REPO_DIR"
 
 # =====================================================================
@@ -62,13 +63,13 @@ if [ "$LITE" = 1 ]; then
   fi
 
   if command -v k3s >/dev/null 2>&1; then
-    read -rp "k3s is installed but too heavy for this server. Remove it? [Y/n] " ans
+    read -rp "k3s is installed but too heavy for this server. Remove it? [Y/n] " ans || ans=""
     if [ "${ans:-Y}" != "n" ]; then step "Removing k3s"; sudo /usr/local/bin/k3s-uninstall.sh; fi
   fi
 
   if ! command -v docker >/dev/null 2>&1; then
     step "Installing Docker"
-    curl -fsSL https://get.docker.com | sudo sh
+    curl -fsSL https://get.docker.com | sudo sh </dev/null
   fi
 
   step "Writing configuration"
@@ -157,11 +158,11 @@ fi
 if ! grep -q "$DOMAIN" k8s/frontend/ingress.yaml; then
   echo "WARNING: k8s/frontend/ingress.yaml does not mention $DOMAIN."
   echo "         Update the domain in the repo (ingress, CI workflow, frontend Dockerfile) and push first."
-  read -rp "Continue anyway? [y/N] " ans; [ "${ans:-N}" = "y" ] || exit 1
+  read -rp "Continue anyway? [y/N] " ans || ans=""; [ "${ans:-N}" = "y" ] || exit 1
 fi
 
 if command -v k3s >/dev/null 2>&1; then
-  read -rp "k3s is already installed. Reinstall from scratch? This DELETES all cluster data incl. MongoDB. [y/N] " ans
+  read -rp "k3s is already installed. Reinstall from scratch? This DELETES all cluster data incl. MongoDB. [y/N] " ans || ans=""
   if [ "${ans:-N}" = "y" ]; then sudo /usr/local/bin/k3s-uninstall.sh; fi
 fi
 if ! command -v k3s >/dev/null 2>&1; then
