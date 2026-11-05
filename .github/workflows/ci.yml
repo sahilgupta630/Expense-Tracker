@@ -18,10 +18,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: "20"
           cache: "npm"
@@ -38,22 +38,9 @@ jobs:
       - name: Check backend syntax
         working-directory: backend
         run: |
-          node --input-type=module << 'NODESEOF'
-          import { readFileSync, readdirSync, statSync } from 'fs';
-          import { join } from 'path';
-          function walk(dir) {
-            for (const f of readdirSync(dir)) {
-              const p = join(dir, f);
-              if (statSync(p).isDirectory() && f !== 'node_modules') walk(p);
-              else if (f.endsWith('.js')) {
-                try { new Function(readFileSync(p, 'utf8')); }
-                catch(e) { if (!e.message.includes('import')) { console.error(p, e.message); process.exit(1); } }
-              }
-            }
-          }
-          walk('src');
-          console.log('Backend syntax OK');
-          NODESEOF
+          # node --check parses each file as an ES module (package.json has "type": "module")
+          find server.js src -name '*.js' -print0 | xargs -0 -n1 node --check
+          echo "Backend syntax OK"
 
   build-and-push:
     name: Build & Push Images
@@ -69,7 +56,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -122,7 +109,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
