@@ -268,7 +268,7 @@ All endpoints are prefixed with `/api` (except `/health`). 🔒 means a `Authori
 
 ## ☁️ Deployment
 
-Production runs on a single AWS EC2 instance with **k3s**, at **https://sahil-expense-tracker.duckdns.org**.
+Production runs on a single AWS EC2 instance at **https://sahil-expense-tracker.duckdns.org**. The repo supports two setups: **k3s (Kubernetes) + ArgoCD** for servers with 3 GB+ RAM, and **Docker Compose + Caddy** for smaller ones.
 
 ```mermaid
 flowchart LR
@@ -294,7 +294,7 @@ flowchart LR
 
 After that, every push to `main` is deployed automatically. See **[k8s/README.md](k8s/README.md)** for the cluster layout, secret rotation, rollbacks and troubleshooting.
 
-> **Small servers (under 3 GB RAM, e.g. `t3.micro`):** `deploy.sh` detects this and switches to a lightweight mode. It adds 4 GB of swap, skips ArgoCD (which alone needs about 1 GB), and installs a systemd timer that pulls `main` every 2 minutes and applies any new manifests. Auto-deploy keeps working the same way. Check it with `journalctl -u expense-tracker-update`.
+> **Small servers (under 3 GB RAM, e.g. `t3.micro`):** Kubernetes needs more memory than these have, so `deploy.sh` switches to a lightweight stack instead: **Docker Compose + [Caddy](https://caddyserver.com)** (automatic HTTPS) with 4 GB of swap, defined in [`deploy/`](deploy). A systemd timer pulls new images every 2 minutes, so auto-deploy on push keeps working. Check it with `journalctl -u expense-tracker-update`. **This is how the live demo runs.**
 
 ## 📁 Project Structure
 
@@ -315,6 +315,7 @@ Expense-Tracker/
 │       ├── components/        # Feature folders: Expense, Budget, Groups, Chatbot, Admin…
 │       ├── Layout.jsx
 │       └── MainRouter.jsx
+├── deploy/                    # Docker Compose + Caddy stack for small servers
 ├── k8s/                       # Kubernetes manifests (namespace, apps, ingress, TLS, ArgoCD)
 ├── .github/workflows/ci.yml   # CI/CD pipeline
 ├── docker-compose.yml         # Local full-stack run

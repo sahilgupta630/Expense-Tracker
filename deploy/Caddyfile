@@ -1,0 +1,20 @@
+# Caddy gets and renews the HTTPS certificate automatically, and redirects HTTP to HTTPS.
+{
+	email {$ACME_EMAIL}
+}
+
+{$DOMAIN} {
+	encode gzip
+
+	handle /api/* {
+		reverse_proxy backend:5000
+	}
+
+	handle /health {
+		reverse_proxy backend:5000
+	}
+
+	handle {
+		reverse_proxy frontend:80
+	}
+}

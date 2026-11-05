@@ -1,0 +1,51 @@
+# Production stack for small servers (under 3 GB RAM), started by deploy.sh.
+# Uses the images CI pushes to GHCR, and Caddy for automatic HTTPS (Let's Encrypt).
+# The domain comes from deploy/.env (DOMAIN=...), which deploy.sh writes on the server.
+# Secrets come from /etc/expense-tracker/backend.env (root-only, never in Git).
+name: expense-tracker
+
+services:
+  mongodb:
+    image: mongo:7.0
+    # Keep MongoDB's cache small so it fits next to the app on a 1 GB server
+    command: ["--wiredTigerCacheSizeGB", "0.25"]
+    volumes:
+      - mongodb_data:/data/db
+    restart: unless-stopped
+
+  backend:
+    image: ghcr.io/sahilgupta630/expense-tracker-backend:latest
+    env_file:
+      - /etc/expense-tracker/backend.env
+    environment:
+      PORT: "5000"
+      mongoDBURL: mongodb://mongodb:27017/expense-tracker
+    depends_on:
+      - mongodb
+    restart: unless-stopped
+
+  frontend:
+    image: ghcr.io/sahilgupta630/expense-tracker-frontend:latest
+    restart: unless-stopped
+
+  caddy:
+    image: caddy:2-alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      DOMAIN: ${DOMAIN:?set DOMAIN in deploy/.env}
+      ACME_EMAIL: guptasahilkumar783@gmail.com
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - backend
+      - frontend
+    restart: unless-stopped
+
+volumes:
+  mongodb_data:
+  caddy_data:
+  caddy_config:
