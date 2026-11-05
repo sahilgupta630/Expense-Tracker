@@ -69,7 +69,8 @@ if [ "$LITE" = 1 ]; then
 
   if ! command -v docker >/dev/null 2>&1; then
     step "Installing Docker"
-    curl -fsSL https://get.docker.com | sudo sh </dev/null
+    curl -fsSL https://get.docker.com -o /tmp/get-docker.sh
+    sudo sh /tmp/get-docker.sh </dev/null
   fi
 
   step "Writing configuration"
